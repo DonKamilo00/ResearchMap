@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Researcher Collaboration Network</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        #network {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+        }
+        #message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Researcher Collaboration Network</h1>
+    <input type="text" id="search" placeholder="Search researchers">
+    <ul id="results"></ul>
+    <button onclick="visualizeNetwork()">Visualize Network</button>
+    <div id="message"></div>
+    <div id="network"></div>
+
+    <script>
+        let selectedResearcher = null;
+
+        document.getElementById('search').addEventListener('input', async (e) => {
+            const query = e.target.value;
+            const response = await fetch(`/search?query=${query}`);
+            const researchers = await response.json();
+            const resultsList = document.getElementById('results');
+            resultsList.innerHTML = '';
+            researchers.forEach(researcher => {
+                const li = document.createElement('li');
+                li.textContent = researcher.name;
+                li.onclick = () => {
+                    selectedResearcher = researcher;
+                    updateSelectedResearcher();
+                };
+                resultsList.appendChild(li);
+            });
+        });
+
+        function updateSelectedResearcher() {
+            const resultsList = document.getElementById('results');
+            resultsList.innerHTML = '';
+            if (selectedResearcher) {
+                const li = document.createElement('li');
+                li.textContent = selectedResearcher.name;
+                li.onclick = () => {
+                    selectedResearcher = null;
+                    updateSelectedResearcher();
+                };
+                resultsList.appendChild(li);
+            }
+        }
+
+        async function visualizeNetwork() {
+            if (!selectedResearcher) {
+                document.getElementById('message').textContent = 'Please select a researcher to visualize their network.';
+                return;
+            }
+
+            const response = await fetch(`/network?researcher=${selectedResearcher.id}`);
+            const networkData = await response.json();
+            console.log("Received network data:", networkData);
+
+            if (networkData.nodes.length === 0 || networkData.links.length === 0) {
+                document.getElementById('message').textContent = 'No collaboration data found for the selected researcher.';
+                return;
+            }
+
+            document.getElementById('message').textContent = '';
+
+            const svg = d3.select("#network");
+            svg.selectAll("*").remove();
+
+            const width = 800;
+            const height = 600;
+
+            const simulation = d3.forceSimulation(networkData.nodes)
+                .force("link", d3.forceLink(networkData.links).id(d => d.id))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(networkData.links)
+                .enter().append("line")
+                .attr("stroke", "#999")
+                .attr("stroke-opacity", 0.6)
+                .attr("stroke-width", d => Math.sqrt(d.weight));
+
+            const node = svg.append("g")
+                .selectAll("circle")
+                .data(networkData.nodes)
+                .enter().append("circle")
+                .attr("r", d => d.id === selectedResearcher.id ? 10 : 5)
+                .attr("fill", d => d.id === selectedResearcher.id ? "#ff0000" : "#69b3a2")
+                .call(drag(simulation));
+
+            const label = svg.append("g")
+                .selectAll("text")
+                .data(networkData.nodes)
+                .enter().append("text")
+                .text(d => d.name)
+                .attr("font-size", "10px")
+                .attr("dx", 12)
+                .attr("dy", 4);
+
+            node.append("title")
+                .text(d => d.name);
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+
+                label
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
+            });
+
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+                
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+                
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+                
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+        }
+    </script>
+</body>
+</html>
