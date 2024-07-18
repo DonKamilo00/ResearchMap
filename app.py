@@ -55,9 +55,8 @@ def network():
                     else:
                         collaborators[coauthor_id]['count'] += 1
 
-        # Add top collaborators to the graph
-        top_collaborators = sorted(collaborators.items(), key=lambda x: x[1]['count'], reverse=True)[:20]
-        for coauthor_id, info in top_collaborators:
+        # Add all collaborators to the graph
+        for coauthor_id, info in collaborators.items():
             G.add_node(coauthor_id, name=info['name'], profile_link=f"{OPENALEX_API_URL}/authors/{coauthor_id}")
             G.add_edge(researcher_id, coauthor_id, weight=info['count'])
 
