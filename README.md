@@ -56,13 +56,13 @@ Please make sure to follow the [contributing guidelines](CONTRIBUTING.md) and [c
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GLP 3.0 License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
 If you have any questions or feedback, feel free to reach out to us at:
 
-- **Email**: your-email@example.com
+- **Email**: maruszakkamil1@gmail.com
 - **GitHub Issues**: [Create an Issue](https://github.com/your-username/ResearchMap/issues)
 
 ## Screenshots
