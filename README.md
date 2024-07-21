@@ -23,8 +23,7 @@ To get started with ResearchMap, ensure you have Python and Flask installed on y
 
 2. **Activate a virtual environment**:
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
     ```
 
 3. **Install the required dependencies**:
