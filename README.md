@@ -69,7 +69,7 @@ If you have any questions or feedback, feel free to reach out to us at:
 
 Here are some screenshots of the current state of the project:
 
-![Search Researcher](path/to/search-screenshot.png)
+![Search Researcher](https://github.com/DonKamilo00/ResearchMap/blob/main/Screenshot%202024-07-21%20114805.png)
 *Search and select a researcher*
 
 ![Network Visualization](path/to/visualization-screenshot.png)
