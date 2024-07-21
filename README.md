@@ -21,7 +21,7 @@ To get started with ResearchMap, ensure you have Python and Flask installed on y
     cd ResearchMap
     ```
 
-2. **Create and activate a virtual environment**:
+2. **Activate a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
