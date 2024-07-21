@@ -4,123 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Researcher Collaboration Network</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        #network {
-            width: 100%;
-            height: 600px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .node circle {
+        stroke: #fff;
+        stroke-width: 1.5px;
+        }
+
+        .node text {
+        font: 10px sans-serif;
+        }
+
+        .link {
+        stroke: #ccc;
+        stroke-width: 1.5px;
+        }
+        #searchResults {
+            list-style-type: none;
+            padding: 0;
+        }
+        #searchResults li {
+            cursor: pointer;
+            padding: 5px;
+            margin: 2px 0;
+            background-color: #f0f0f0;
+        }
+        #searchResults li:hover {
+            background-color: #e0e0e0;
+        }
+        #searchResults a {
+            color: #0000EE;
+            text-decoration: none;
+        }
+        #searchResults a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <h1>Researcher Collaboration Network</h1>
-    
-    <input type="text" id="searchInput" placeholder="Search for a researcher">
+    <div>
+        <input type="text" id="searchInput" placeholder="Search for a researcher">
+        <button id="searchButton">Search</button>
+    </div>
     <ul id="searchResults"></ul>
-    
-    <button id="visualizeButton" disabled>Visualize Network</button>
-    
-    <div id="network"></div>
-
-    <script>
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const visualizeButton = document.getElementById('visualizeButton');
-        let selectedResearcherId = null;
-
-        searchInput.addEventListener('input', debounce(performSearch, 300));
-
-        function debounce(func, delay) {
-            let debounceTimer;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => func.apply(context, args), delay);
-            }
-        }
-
-        function performSearch() {
-            const query = searchInput.value;
-            if (query.length < 3) return;
-
-            fetch(`/search?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    searchResults.innerHTML = '';
-                    data.forEach(researcher => {
-                        const li = document.createElement('li');
-                        li.textContent = researcher.name;
-                        li.dataset.id = researcher.id;
-                        li.addEventListener('click', () => selectResearcher(researcher));
-                        searchResults.appendChild(li);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function selectResearcher(researcher) {
-            selectedResearcherId = researcher.id;
-            searchInput.value = researcher.name;
-            searchResults.innerHTML = '';
-            visualizeButton.disabled = false;
-        }
-
-        visualizeButton.addEventListener('click', visualizeNetwork);
-
-        function visualizeNetwork() {
-            if (!selectedResearcherId) return;
-
-            fetch(`/network?researcher=${selectedResearcherId}`)
-                .then(response => response.json())
-                .then(data => {
-                    createNetworkVisualization(data);
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function createNetworkVisualization(data) {
-            const networkDiv = document.getElementById('network');
-            networkDiv.innerHTML = ''; // Clear previous content
-
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, networkDiv.clientWidth / networkDiv.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer();
-            renderer.setSize(networkDiv.clientWidth, networkDiv.clientHeight);
-            networkDiv.appendChild(renderer.domElement);
-
-            // Create nodes
-            data.nodes.forEach(node => {
-                const geometry = new THREE.SphereGeometry(0.5);
-                const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-                const sphere = new THREE.Mesh(geometry, material);
-                sphere.position.set(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5);
-                scene.add(sphere);
-            });
-
-            // Create edges (links)
-            data.links.forEach(link => {
-                const sourceNode = data.nodes.find(node => node.id === link.source);
-                const targetNode = data.nodes.find(node => node.id === link.target);
-                if (sourceNode && targetNode) {
-                    const geometry = new THREE.BufferGeometry().setFromPoints([
-                        new THREE.Vector3(sourceNode.x, sourceNode.y, sourceNode.z),
-                        new THREE.Vector3(targetNode.x, targetNode.y, targetNode.z)
-                    ]);
-                    const material = new THREE.LineBasicMaterial({color: 0xffffff});
-                    const line = new THREE.Line(geometry, material);
-                    scene.add(line);
-                }
-            });
-
-            camera.position.z = 15;
-
-            function animate() {
-                requestAnimationFrame(animate);
-                renderer.render(scene, camera);
-            }
-            animate();
-        }
-    </script>
+    <div id="network" style="width: 100%; height: 800px;"></div>
+    <script src="/static/js/tree.js"></script>
 </body>
 </html>
