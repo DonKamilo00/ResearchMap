@@ -72,7 +72,7 @@ Here are some screenshots of the current state of the project:
 ![Search Researcher](https://github.com/DonKamilo00/ResearchMap/blob/main/Screenshot%202024-07-21%20114805.png)
 *Search and select a researcher*
 
-![Network Visualization](path/to/visualization-screenshot.png)
+![Network Visualization](https://github.com/DonKamilo00/ResearchMap/blob/main/Screenshot%202024-07-21%20114923.png)
 *Network visualization of researcher collaborations*
 
 ## Technologies Used
